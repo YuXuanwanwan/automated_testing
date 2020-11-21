@@ -66,79 +66,112 @@ public class TestSelection {
             System.out.println("--------------------------------------------");
         }
 
-        //格式化读取，并存储
-        //class&&method
-        List<Class_Method> classChange = new ArrayList<>();
-        List<Class_Method> methodChange = new ArrayList<>();
-        FileReader change_info=new FileReader("C:\\Users\\ASUS\\Desktop\\ClassicAutomatedTesting\\0-CMD\\data\\change_info.txt");
-        BufferedReader br=new BufferedReader(change_info);
-        String line="";
-        String[] temp=null;
-        while((line=br.readLine())!=null){
-            temp=line.split(" ");
-            for(Class_Method class_method1:myNodes){
-                if(class_method1.getClassName().equals(temp[0])){
-                    class_method1.setChanged(true);
-                    classChange.add(class_method1);
-                }
-                if(class_method1.getClassName().equals(temp[0])&&class_method1.getMethodName().equals(temp[1])){
-                    class_method1.setChanged(true);
-                    methodChange.add(class_method1);
+        boolean class_or_method=true;
+        if(class_or_method) {//class
+            List<Class_Method> classChange = new ArrayList<>();
+            FileReader change_info = new FileReader("C:\\Users\\ASUS\\Desktop\\ClassicAutomatedTesting\\5-MoreTriangle\\data\\change_info.txt");
+            BufferedReader br = new BufferedReader(change_info);
+            String line = "";
+            String[] temp = null;
+            while ((line = br.readLine()) != null) {
+                temp = line.split(" ");
+                for (Class_Method class_method1 : myNodes) {
+                    if (class_method1.getClassName().equals(temp[0])) {
+                        class_method1.setChanged(true);
+                        classChange.add(class_method1);
+                    }
                 }
             }
-            System.out.println(temp[0] + " : " + temp[1]);
-        }
-        br.close();
-        change_info.close();
-        for(int i=0;i<myNodes.size();i++){
-            list.add(myNodes.get(i));
-        }
-        // Class Level Selection.
-        for (Class_Method class_method1 : classChange) {
-            change_set(class_method1);
-        }
-        List<Class_Method> res_Class_change = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).isChanged() && list.get(i).getisTest()) {
-                res_Class_change.add(list.get(i));
+            br.close();
+            change_info.close();
+
+            //      Class Level Selection.
+//        for (Class_Method class_method1 : classChange) {
+//            change_set(class_method1);
+//        }
+            ;
+            for (Class_Method method : classChange) {
+                change_set(method);
             }
-        }
-        for (Class_Method class_method1 : methodChange) {
-            change_set(class_method1);
-        }
-        List<Class_Method> res_Method_change = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).isChanged() && list.get(i).getisTest()) {
-                res_Method_change.add(list.get(i));
+            List<Class_Method> res_Class_change = new ArrayList<>();
+
+            for (int i = 0; i < myNodes.size(); i++) {
+                if (myNodes.get(i).isChanged() && myNodes.get(i).getisTest()) {
+                    res_Class_change.add(myNodes.get(i));
+                }
             }
+
+            for (int i = 0; i < res_Class_change.size(); i++) {
+                System.out.println(res_Class_change.get(i).getClassName() + "*************************************************");
+            }
+
+
+            final String BLANK = " ";
+            final String NL = System.lineSeparator();
+            StringBuilder sub1 = new StringBuilder();
+            for (Class_Method class_method : res_Class_change)
+                sub1.append(class_method.toString()).append(NL);
+            String str11 = sub1.toString();
+
+            String output3 = "E:/AutoTest/Report/5-MoreTriangle/selection-class.txt";
+            File file3 = new File(output3);
+            BufferedWriter bw3 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file3, false), "UTF-8"));
+            bw3.write(str11);
+            bw3.newLine();
+            bw3.close();
+
         }
+        else{
+            List<Class_Method> methodChange = new ArrayList<>();
+            FileReader change_info = new FileReader("C:\\Users\\ASUS\\Desktop\\ClassicAutomatedTesting\\5-MoreTriangle\\data\\change_info.txt");
+            BufferedReader br = new BufferedReader(change_info);
+            String line = "";
+            String[] temp = null;
+            while ((line = br.readLine()) != null) {
+                temp = line.split(" ");
+                for (Class_Method class_method1 : myNodes) {
+                    if (class_method1.getClassName().equals(temp[0]) && class_method1.getMethodName().equals(temp[1])) {
+                        class_method1.setChanged(true);
+                        methodChange.add(class_method1);
+                    }
+                }
+            }
+            br.close();
+            change_info.close();
 
 
+            //      Class Level Selection.
+//        for (Class_Method class_method1 : classChange) {
+//            change_set(class_method1);
+//        }
+            ;
 
-        final String BLANK = " ";
-        final String NL = System.lineSeparator();
-        StringBuilder sub1 = new StringBuilder();
-        for (Class_Method class_method : res_Class_change)
-            sub1.append(class_method.toString()).append(NL);
-        String str11=sub1.toString();
-        String output3 = "E:/AutoTest/Report/0-CMD/selection-class.txt";
-        File file3=new File(output3);
-        BufferedWriter bw3=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file3, false), "UTF-8"));
-        bw3.write(str11);
-        bw3.newLine();
-        bw3.close();
 
-        StringBuilder sub2 = new StringBuilder();
-        for (Class_Method class_method : res_Method_change)
-            sub2.append(class_method.toString()).append(NL);
-        String str12=sub2.toString();
-        String output4 = "E:/AutoTest/Report/0-CMD/selection-method.txt";
-        File file4=new File(output4);
-        BufferedWriter bw4=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file4, false), "UTF-8"));
-        bw4.write(str12);
-        bw4.newLine();
-        bw4.close();
+            for (Class_Method class_method1 : methodChange) {
+                change_set(class_method1);
+            }
 
+
+            List<Class_Method> res_Method_change = new ArrayList<>();
+            for (int i = 0; i < myNodes.size(); i++) {
+                if (myNodes.get(i).isChanged() && myNodes.get(i).getisTest()) {
+                    res_Method_change.add(myNodes.get(i));
+                }
+            }
+
+            final String BLANK = " ";
+            final String NL = System.lineSeparator();
+            StringBuilder sub2 = new StringBuilder();
+            for (Class_Method class_method : res_Method_change)
+                sub2.append(class_method.toString()).append(NL);
+            String str12 = sub2.toString();
+            String output4 = "E:/AutoTest/Report/5-MoreTriangle/selection-method.txt";
+            File file4 = new File(output4);
+            BufferedWriter bw4 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file4, false), "UTF-8"));
+            bw4.write(str12);
+            bw4.newLine();
+            bw4.close();
+        }
 
     }
 
