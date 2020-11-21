@@ -1,0 +1,17 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="AutoTest:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/AutoTest_jar</output-path>
+    <root id="archive" name="AutoTest.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/Project/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="AutoTest" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/ibm/wala/com.ibm.wala.shrike/1.5.5/com.ibm.wala.shrike-1.5.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/ibm/wala/com.ibm.wala.util/1.5.5/com.ibm.wala.util-1.5.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-io/commons-io/2.6/commons-io-2.6.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/ibm/wala/com.ibm.wala.cast.java/1.5.5/com.ibm.wala.cast.java-1.5.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/ibm/wala/com.ibm.wala.core/1.5.5/com.ibm.wala.core-1.5.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/ibm/wala/com.ibm.wala.cast/1.5.5/com.ibm.wala.cast-1.5.5.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
