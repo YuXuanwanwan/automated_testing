@@ -188,7 +188,7 @@ public class AutoTest {
                 sub1.append(class_method.toString()).append(NL);
             String str11 = sub1.toString();
 
-            String output3 = "out/selection-class.txt";
+            String output3 = "Demo/selection-class.txt";
             File file3 = new File(output3);
             BufferedWriter bw3 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file3, false), "UTF-8"));
             bw3.write(str11);
@@ -240,7 +240,7 @@ public class AutoTest {
             for (Class_Method class_method : res_Method_change)
                 sub2.append(class_method.toString()).append(NL);
             String str12 = sub2.toString();
-            String output4 = "out/selection-method.txt";
+            String output4 = "Demo/selection-method.txt";
             File file4 = new File(output4);
             BufferedWriter bw4 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file4, false), "UTF-8"));
             bw4.write(str12);
