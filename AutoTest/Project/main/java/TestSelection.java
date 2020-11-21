@@ -1,0 +1,258 @@
+import com.ibm.wala.classLoader.ShrikeBTMethod;
+import com.ibm.wala.ipa.callgraph.AnalysisScope;
+import com.ibm.wala.ipa.callgraph.CGNode;
+import com.ibm.wala.ipa.callgraph.Entrypoint;
+import com.ibm.wala.ipa.callgraph.cha.CHACallGraph;
+import com.ibm.wala.ipa.callgraph.impl.AllApplicationEntrypoints;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
+import com.ibm.wala.ipa.cha.ClassHierarchyException;
+import com.ibm.wala.ipa.cha.ClassHierarchyFactory;
+import com.ibm.wala.shrikeCT.InvalidClassFileException;
+import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.util.CancelException;
+import com.ibm.wala.util.config.AnalysisScopeReader;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class TestSelection {
+    static List<Class_Method> list=new ArrayList<>();
+    public void testSelection() throws IOException, InvalidClassFileException, ClassHierarchyException, CancelException {
+        ClassLoader loader= TestSelection.class.getClassLoader();
+        AnalysisScope analysisScope = AnalysisScopeReader.readJavaScope("E:/AutoTest/Project/main/resources/scope.txt", new File("E:/AutoTest/Project/main/resources/exclusion.txt"), loader);
+        ReadFile("C:/Users/ASUS/Desktop/ClassicAutomatedTesting/0-CMD",analysisScope);
+        ClassHierarchy cha = ClassHierarchyFactory.makeWithRoot(analysisScope);
+        Iterable<Entrypoint> eps = new AllApplicationEntrypoints(analysisScope, cha);
+        CHACallGraph chaCG = new CHACallGraph(cha);
+        chaCG.init(eps);
+
+        List<Class_Method> myNodes=new ArrayList<>();
+        List<CGNode> tempNode=new ArrayList<>();
+        for(CGNode node: chaCG) {
+            if(node.getMethod() instanceof ShrikeBTMethod) {
+                ShrikeBTMethod method = (ShrikeBTMethod) node.getMethod();
+                if("Application".equals(method.getDeclaringClass().getClassLoader().toString())) {
+                    tempNode.add(node);
+                    myNodes.add(new Class_Method(method));
+                }
+            }
+        }
+        for(int i = 0 ; i < myNodes.size(); i++) {
+            Class_Method myNode = myNodes.get(i);
+            CGNode appNode = tempNode.get(i);
+            Iterator<CGNode> predIter = chaCG.getPredNodes(appNode);
+            List<Class_Method> dependents = new ArrayList<>();
+            while (predIter.hasNext()) {
+                CGNode node = predIter.next();
+                ShrikeBTMethod method = (ShrikeBTMethod) node.getMethod();
+                Class_Method class_method=new Class_Method(method);
+                int index=-1;
+                for(int j=0;j<myNodes.size();j++) {
+                    Class_Method myNodetemp = myNodes.get(j);
+                    if (myNodetemp.getMethodName().equals(class_method.getMethodName()) && myNodetemp.getClassName().equals(class_method.getClassName())&&myNodetemp.getisTest()==class_method.getisTest()){
+                        index = j;
+                        break;
+                    }
+                }
+                System.out.println(index);
+                if(index != -1) {
+                    dependents.add(myNodes.get(index));
+                }
+            }
+            myNode.setDependents(dependents);
+            System.out.println("--------------------------------------------");
+        }
+
+        //格式化读取，并存储
+        //class&&method
+        boolean class_or_method=true;
+        if(class_or_method) {//class
+            List<Class_Method> classChange = new ArrayList<>();
+            FileReader change_info = new FileReader("C:\\Users\\ASUS\\Desktop\\ClassicAutomatedTesting\\5-MoreTriangle\\data\\change_info.txt");
+            BufferedReader br = new BufferedReader(change_info);
+            String line = "";
+            String[] temp = null;
+            while ((line = br.readLine()) != null) {
+                temp = line.split(" ");
+                for (Class_Method class_method1 : myNodes) {
+                    if (class_method1.getClassName().equals(temp[0])) {
+                        class_method1.setChanged(true);
+                        classChange.add(class_method1);
+                    }
+                }
+            }
+            br.close();
+            change_info.close();
+
+            //      Class Level Selection.
+//        for (Class_Method class_method1 : classChange) {
+//            change_set(class_method1);
+//        }
+            ;
+            for (Class_Method method : classChange) {
+                change_set(method);
+            }
+            List<Class_Method> res_Class_change = new ArrayList<>();
+
+            for (int i = 0; i < myNodes.size(); i++) {
+                if (myNodes.get(i).isChanged() && myNodes.get(i).getisTest()) {
+                    res_Class_change.add(myNodes.get(i));
+                }
+            }
+
+            for (int i = 0; i < res_Class_change.size(); i++) {
+                System.out.println(res_Class_change.get(i).getClassName() + "*************************************************");
+            }
+
+
+            final String BLANK = " ";
+            final String NL = System.lineSeparator();
+            StringBuilder sub1 = new StringBuilder();
+            for (Class_Method class_method : res_Class_change)
+                sub1.append(class_method.toString()).append(NL);
+            String str11 = sub1.toString();
+
+            String output3 = "E:/AutoTest/Report/5-MoreTriangle/selection-class.txt";
+            File file3 = new File(output3);
+            BufferedWriter bw3 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file3, false), "UTF-8"));
+            bw3.write(str11);
+            bw3.newLine();
+            bw3.close();
+
+        }
+        else{
+            List<Class_Method> methodChange = new ArrayList<>();
+            FileReader change_info = new FileReader("C:\\Users\\ASUS\\Desktop\\ClassicAutomatedTesting\\5-MoreTriangle\\data\\change_info.txt");
+            BufferedReader br = new BufferedReader(change_info);
+            String line = "";
+            String[] temp = null;
+            while ((line = br.readLine()) != null) {
+                temp = line.split(" ");
+                for (Class_Method class_method1 : myNodes) {
+                    if (class_method1.getClassName().equals(temp[0]) && class_method1.getMethodName().equals(temp[1])) {
+                        class_method1.setChanged(true);
+                        methodChange.add(class_method1);
+                    }
+                }
+            }
+            br.close();
+            change_info.close();
+
+
+            //      Class Level Selection.
+//        for (Class_Method class_method1 : classChange) {
+//            change_set(class_method1);
+//        }
+            ;
+
+
+            for (Class_Method class_method1 : methodChange) {
+                change_set(class_method1);
+            }
+
+
+            List<Class_Method> res_Method_change = new ArrayList<>();
+            for (int i = 0; i < myNodes.size(); i++) {
+                if (myNodes.get(i).isChanged() && myNodes.get(i).getisTest()) {
+                    res_Method_change.add(myNodes.get(i));
+                }
+            }
+
+            final String BLANK = " ";
+            final String NL = System.lineSeparator();
+            StringBuilder sub2 = new StringBuilder();
+            for (Class_Method class_method : res_Method_change)
+                sub2.append(class_method.toString()).append(NL);
+            String str12 = sub2.toString();
+            String output4 = "E:/AutoTest/Report/5-MoreTriangle/selection-method.txt";
+            File file4 = new File(output4);
+            BufferedWriter bw4 = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file4, false), "UTF-8"));
+            bw4.write(str12);
+            bw4.newLine();
+            bw4.close();
+        }
+
+    }
+
+    //读文件
+    private static void ReadFile(String fileDir,AnalysisScope analysisScope) throws InvalidClassFileException {
+        List<File> fileList = new ArrayList<File>();
+        File file = new File(fileDir);
+        File[] files = file.listFiles();// 获取目录下的所有文件或文件夹
+        if (files == null) {// 如果目录为空，直接退出
+            return;
+        }
+        // 遍历，目录下的所有文件
+        for (File f : files) {
+            if (f.isFile()) {
+                fileList.add(f);
+                String Filename=f.getName();
+                if(Filename.length()>5){
+                    String subName=Filename.substring(Filename.length()-5,Filename.length());
+                    if(subName.equals("class")){
+                        analysisScope.addClassFileToScope(ClassLoaderReference.Application,f);
+                    }
+                }
+            } else if (f.isDirectory()) {
+                ReadFile(f.getAbsolutePath(),analysisScope);
+            }
+        }
+    }
+
+
+//递归的将被修改方法的依赖设置为被修改
+//    public static Class_Method change_set(Class_Method class_method){
+//        class_method.setChanged(true);
+//        class_method.setIsused(true);
+//        if(class_method.isIsused()){
+//            return class_method;
+//        }
+//        else{
+//            List<Class_Method> temp=class_method.getDependents();
+//            if(temp.isEmpty()){
+//                return class_method;
+//            }
+//            else{
+//                List<Class_Method> temp2=new ArrayList<>();
+//                for(int i=0;i<temp.size();i++){
+//                    Class_Method temp1=change_set(temp.get(i));
+//                    temp2.add(temp1);
+//                }
+//                class_method.setDependents(temp2);
+//                return class_method;
+//            }
+//        }
+//    }
+
+    public static void change_set(Class_Method class_method){
+        int index=-1;
+        for(int i=0;i<list.size();i++){
+            if(class_method.getClassName().equals(list.get(i).getClassName())){
+                index=i;
+                break;
+            }
+        }
+        Class_Method ttemp=list.get(index);
+        ttemp.setChanged(true);
+        ttemp.setIsused(true);
+        list.set(index,ttemp);
+        if(list.get(index).isIsused()){
+            return;
+        }
+        else{
+            List<Class_Method> temp=list.get(index).getDependents();
+            if(temp.isEmpty()){
+                return;
+            }
+            else{
+                for (Class_Method dependent : temp)
+                    change_set(dependent);
+            }
+        }
+    }
+}
+
+
